@@ -28,7 +28,12 @@ export async function POST(request: NextRequest) {
   };
   try {
     const token = createScenarioToken(config);
-    const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || request.nextUrl.origin;
+    const configuredBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+    const configuredBaseIsLocal = !!configuredBase && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(configuredBase);
+    // Never return a localhost target URL from a production deployment.
+    const base = process.env.NODE_ENV === "production" && configuredBaseIsLocal
+      ? request.nextUrl.origin
+      : configuredBase || request.nextUrl.origin;
     const targetUrl = `${base}/api/target?scenario=${encodeURIComponent(token)}`;
     return NextResponse.json({ targetUrl, expiresInSeconds: 604800 });
   } catch {
