@@ -171,10 +171,14 @@ Route	Purpose
 - [ ] Add repeatable scanner regression tests
 - [ ] Add exportable test reports
 - [ ] Improve scenario documentation
+`
+
 
 ◈ Test Application for:
 
-       <a href="https://github.com/ashfaqhyder/Valorynn" title="Open the Valorynn repository">
+
+
+  <a href="https://github.com/ashfaqhyder/Valorynn" title="Open the Valorynn repository">  
     <img src="public/valorynn/logo.png" alt="Valorynn shield logo — open Valorynn repository" width="112" />
   </a>
   
