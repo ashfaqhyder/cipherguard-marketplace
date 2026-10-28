@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-// @ts-expect-error Next.js processes this stylesheet import at build time.
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { SiteHeader } from "@/components/site-header";
