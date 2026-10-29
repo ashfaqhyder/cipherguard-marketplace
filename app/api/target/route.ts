@@ -1,26 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyScenarioToken } from "@/lib/scenario";
+import { NextResponse } from "next/server";
+import { readLabConfig } from "@/lib/lab-config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get("scenario") || "";
+export async function GET() {
   let config;
-  try { config = verifyScenarioToken(token); } catch { config = null; }
-  if (!config) {
+  try {
+    config = await readLabConfig();
+  } catch {
     return NextResponse.json({
-      error: "Invalid or expired demo scenario.",
-      help: "Sign in to the CipherGuard Security Lab and generate a fresh target URL."
-    }, { status: 400, headers: { "Cache-Control": "no-store" } });
+      error: "The active security configuration is temporarily unavailable.",
+      help: "Configure the persistent lab store in the deployment environment."
+    }, {
+      status: 503,
+      headers: { "Cache-Control": "no-store, max-age=0" }
+    });
   }
 
   const headers = new Headers({
     "Content-Type": "application/json; charset=utf-8",
     "X-Demo-Target": "CipherGuard-Security-Lab",
-    "X-Demo-Scenario": config.scenarioName
+    "X-Demo-Scenario": config.scenarioName,
+    "Cache-Control": config.cachePolicy ? "no-store, max-age=0" : "public, max-age=60"
   });
-  headers.set("Cache-Control", config.cachePolicy ? "no-store, max-age=0" : "public, max-age=60");
   if (config.csp) headers.set("Content-Security-Policy", "default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
   if (config.nosniff) headers.set("X-Content-Type-Options", "nosniff");
   if (config.referrerPolicy) headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -55,5 +59,7 @@ export async function GET(request: NextRequest) {
       }
     } : {})
   };
+  // Vercel/CDN caching must not freeze a previous configuration at the permanent target URL.
+  headers.set("Cache-Control", "no-store, max-age=0");
   return new NextResponse(JSON.stringify(body, null, 2), { status: 200, headers });
 }
