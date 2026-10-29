@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
       if (config.serverBanner) response.headers.set("X-Demo-Server", "training-server/0.9 (simulated)");
       if (config.debugExposure) response.headers.set("X-Demo-Diagnostics", "SIMULATED_DEBUG");
       response.headers.set("X-Demo-Scenario", config.scenarioName);
-      response.headers.set("Cache-Control", "no-store, max-age=0");
+      response.headers.set("Cache-Control", config.cachePolicy ? "no-store, max-age=0" : "public, max-age=60");
 
       if (config.cookieFlags) {
         response.cookies.set("valorynn_lab_demo", "training-only", {
