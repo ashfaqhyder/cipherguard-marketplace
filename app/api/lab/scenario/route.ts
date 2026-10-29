@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const config = await readLabConfig();
     return NextResponse.json({
       config: isLabConfig(config) ? config : defaultLabConfig,
-      targetUrl: `${request.nextUrl.origin}/api/target`,
+      targetUrl: request.nextUrl.origin,
     }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     await saveLabConfig(body);
     return NextResponse.json({
       config: body,
-      targetUrl: `${request.nextUrl.origin}/api/target`,
+      targetUrl: request.nextUrl.origin,
       message: "Active configuration saved. The permanent target URL now serves this configuration.",
     }, { headers: { "Cache-Control": "no-store" } });
   } catch {
