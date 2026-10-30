@@ -46,9 +46,10 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const path = request.nextUrl.pathname;
 
-  // /api/target returns a JSON diagnostic document and applies its own headers.
-  // The public site routes below are the stable target that Valorynn can scan.
-  if (path !== "/api/target") {
+  // Keep the admin interface usable even when the lab deliberately enables a restrictive CSP.
+  // /api/target applies its own headers; public site routes remain the stable scan target.
+  const isAdminRoute = path === "/admin" || path.startsWith("/admin/");
+  if (path !== "/api/target" && !isAdminRoute) {
     const config = await getActiveConfig();
 
     if (config) {
